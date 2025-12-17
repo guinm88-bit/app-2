@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>App-2 | Fabric Design → Yarn Planning</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 16px;
+    }
+
+    h2 { text-align: center; }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    .block {
+      border: 2px solid #444;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+
+    .block-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .row {
+      border: 1px solid #ccc;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th { background: #f0f0f0; }
+    tfoot td { font-weight: bold; background: #fafafa; }
+
+    @media print {
+      button, input, select { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>App-2 · Fabric Design → Yarn Planning</h2>
+
+<label>Yarn Count</label>
+<select id="yarnCount" onchange="prefillByCount()">
+  <option value="">Select yarn count</option>
+  <option value="10">10s</option>
+  <option value="14">14s</option>
+  <option value="26">26s</option>
+  <option value="32">32s</option>
+  <option value="40">40s</option>
+  <option value="60">60s</option>
+  <option value="84">84s</option>
+</select>
+
+<label>Fabric Length</label>
+<input type="number" id="fabricLength">
+
+<label>Wastage (%)</label>
+<input type="number" id="wastage" value="0">
+
+<label>Yarn Length per Hank</label>
+<input type="number" id="hankLength">
+
+<label>Repeat (Design Multiplier)</label>
+<input type="number" id="designRepeat" value="1">
+
+<label>Unit (applies to all widths)</label>
+<select id="globalUnit">
+  <option value="inch">Inch</option>
+  <option value="cm">CM</option>
+</select>
+
+<hr>
+
+<div id="blocks"></div>
+
+<button onclick="addNewBlock()">Add New Block</button>
+<button onclick="calculate()">Calculate</button>
+<button onclick="printPDF()">Save / Print as PDF</button>
+
+<h3>Weaver Instruction</h3>
+<div id="weaverTable"></div>
+
+<h3>Dyeing Instruction</h3>
+<div id="dyeTable"></div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
