@@ -1,118 +1,525 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>App-2 | Fabric Design → Yarn Planning</title>
+  <meta charset="UTF-8">
+  <title>App-2 | Professional Yarn Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 16px;
+    :root {
+      --primary: #1a5276;
+      --secondary: #1e8449;
+      --accent: #f39c12;
+      --danger: #cb4335;
+      --bg: #f0f3f4;
+      --card-bg: #ffffff;
+      --text: #2c3e50;
     }
 
-    h2 { text-align: center; }
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0; padding: 0;
+      line-height: 1.4;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 15px; }
+
+    h2, h3 { color: var(--primary); text-align: center; margin-top: 10px; }
+    label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 2px; }
 
     input, select, button {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
+      width: 100%; padding: 10px; font-size: 14px; margin-bottom: 8px;
+      border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; background: white;
     }
 
+    button {
+      background-color: var(--primary); color: white; border: none;
+      font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+
+    button:active { transform: scale(0.98); }
+    .btn-green { background-color: var(--secondary); }
+    .btn-red { background-color: var(--danger); }
+    .btn-outline { background-color: #e5e8e8; color: var(--text); border: 1px solid #bdc3c7; }
+
+    .card {
+      background: var(--card-bg); padding: 15px; border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #dcdde1;
+    }
+
+    .top-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    @media (min-width: 768px) { .top-grid { grid-template-columns: repeat(4, 1fr); } }
+
     .block {
-      border: 2px solid #444;
-      padding: 10px;
-      margin-bottom: 15px;
+      border: 2px solid var(--primary); padding: 10px;
+      margin-bottom: 15px; border-radius: 10px; background: #fbfcfc;
     }
 
     .block-title {
-      font-weight: bold;
-      margin-bottom: 8px;
+      font-weight: bold; margin-bottom: 8px; color: var(--primary);
+      display: flex; justify-content: space-between; align-items: center;
     }
 
     .row {
-      border: 1px solid #ccc;
-      padding: 8px;
-      margin-bottom: 8px;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 40px 40px;
+      gap: 5px; margin-bottom: 6px; align-items: center;
     }
 
-    .block-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
+    @media (max-width: 600px) {
+      .row { grid-template-columns: 2fr 1fr 1fr; }
+      .row button { grid-column: span 3; margin-bottom: 5px; }
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    th { background: var(--primary); color: white; }
+    .total-row { background: #eaeded; font-weight: bold; color: var(--primary); }
 
-    th, td {
-      border: 1px solid #333;
-      padding: 8px;
-      text-align: center;
-    }
+    .compact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+    .compact-table th { background: var(--secondary); padding: 4px; font-size: 11px; }
+    .matrix-table th { background: var(--primary); }
+    .matrix-table td:first-child { text-align: left; font-weight: bold; background: #f8f9f9; }
 
-    th { background: #f0f0f0; }
-    tfoot td { font-weight: bold; background: #fafafa; }
+    .hidden { display: none; }
 
     @media print {
-      button, input, select { display: none; }
+      .no-print, button, .no-print-force, #blocks, #colourMasterSection, hr, .btn-outline { 
+        display: none !important; 
+      }
+      body { background: white; font-size: 11px; }
+      .container { max-width: 100%; padding: 0; }
+      .card { box-shadow: none; border: 1px solid #ddd; margin-bottom: 8px; }
+      .top-grid { grid-template-columns: repeat(4, 1fr); border: none; display: grid !important; }
+      .top-grid div { border: none; }
+      .top-grid label { font-size: 9px; }
+      .top-grid input, .top-grid select { border: none; font-size: 11px; background: none; -webkit-appearance: none; }
+      table { border: 1px solid #000; }
+      th, td { border: 1px solid #000; padding: 3px; }
     }
   </style>
 </head>
-
 <body>
 
-<h2>App-2 · Fabric Design → Yarn Planning</h2>
+<div class="container">
+  <!-- HOME -->
+  <div id="homePage">
+    <h2>🧵 App-2 Yarn Planner</h2>
+    <button class="btn-green" onclick="createNewDesign()">+ Create New Design</button>
+    <button class="btn-outline" onclick="createNewFolder()">+ Create Folder</button>
+    <div id="folderList"></div>
+    <hr>
+    <h3>Uncategorized Designs</h3>
+    <div id="designList"></div>
+  </div>
 
-<label>Yarn Count</label>
-<select id="yarnCount" onchange="prefillByCount()">
-  <option value="">Select yarn count</option>
-  <option value="10">10s</option>
-  <option value="14">14s</option>
-  <option value="26">26s</option>
-  <option value="32">32s</option>
-  <option value="40">40s</option>
-  <option value="60">60s</option>
-  <option value="84">84s</option>
-</select>
+  <!-- EDITOR -->
+  <div id="editorPage" class="hidden">
+    <div class="no-print" style="display:flex; gap:8px;">
+      <button class="btn-outline" style="width:70px" onclick="goHome()">Back</button>
+      <button class="btn-green" onclick="saveDesign(true)">Save</button>
+      <button class="btn-outline" onclick="saveDesign(false)">Save New</button>
+      <button class="btn-outline" style="width:70px" onclick="window.print()">Print</button>
+    </div>
 
-<label>Fabric Length</label>
-<input type="number" id="fabricLength">
+    <div class="card top-grid" style="margin-top:15px;">
+      <div><label>Main Count</label>
+        <select id="yarnCount" onchange="onYarnChange()">
+          <option value="">Select</option>
+          <option value="6s">6s</option><option value="10s">10s</option><option value="17s">17s</option><option value="26s">26s</option>
+          <option value="32s">32s</option><option value="40s">40s</option><option value="60s">60s</option><option value="84s">84s</option>
+          <option value="100s">100s</option><option value="2/17s">2/17s</option><option value="2/26s">2/26s</option><option value="2/40s">2/40s</option>
+          <option value="2/60s">2/60s</option><option value="2/80s">2/80s</option><option value="33K">33K</option><option value="56K">56K</option><option value="100K">100K</option>
+        </select>
+      </div>
+      <div><label>Length (Mtr)</label><input type="number" id="fabricLength"></div>
+      <div><label>Reed</label><input type="number" id="reedValue"></div>
+      <div><label>Than</label><input type="number" id="thanValue" value="1"></div>
+      <div><label>Repeat</label><input type="number" id="designRepeat" value="1"></div>
+      <div><label>Wastage %</label><input type="number" id="wastagePercent" value="0"></div>
+      <div><label>Hank Len</label><input type="number" id="hankLength"></div>
+      <div><label>Unit</label><select id="globalUnit" onchange="refreshAllRowThreads()"><option value="inch">Inch</option><option value="cm">CM</option></select></div>
+      <div class="no-print"><label>Folder</label><select id="designFolderSelect"></select></div>
+    </div>
 
-<label>Wastage (%)</label>
-<input type="number" id="wastage" value="0">
+    <div class="no-print"><button class="btn-outline" style="margin-bottom:10px" onclick="addBlock('border', 'Border (Top)', 1, [], true)">+ Add Top Border</button></div>
+    
+    <div id="blocks"></div>
+    
+    <div class="no-print" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <button class="btn-outline" onclick="addBlock('border', 'Border (Bottom)', 1)">+ Add Border</button>
+        <button class="btn-outline" onclick="addBlock('design', 'Main Design', 3)">+ Add Design</button>
+    </div>
 
-<label>Yarn Length per Hank</label>
-<input type="number" id="hankLength">
+    <button class="no-print" style="margin:20px 0;" onclick="calculate()">Calculate Instruction</button>
 
-<label>Repeat (Design Multiplier)</label>
-<input type="number" id="designRepeat" value="1">
+    <div id="weaverTable"></div>
+    <div id="dyeTable"></div>
 
-<label>Unit (applies to all widths)</label>
-<select id="globalUnit">
-  <option value="inch">Inch</option>
-  <option value="cm">CM</option>
-</select>
+    <div class="no-print" style="margin-top:30px; padding-top:15px; border-top: 1px solid #ccc;">
+      <button class="btn-outline" id="toggleColBtn" onclick="toggleColourMaster()">Show Colour Master List</button>
+      <div id="colourMasterSection" class="hidden card" style="margin-top:10px;">
+          <div id="colourRows"></div>
+          <button class="btn-outline" onclick="addColourRow()">+ Add Color Row</button>
+          <button class="btn-green" onclick="saveColours()">Save Color Master</button>
+      </div>
+    </div>
+  </div>
 
-<hr>
+  <!-- FOLDER VIEW -->
+  <div id="folderPage" class="hidden">
+    <div class="no-print" style="display:flex; gap:10px; margin-bottom:20px;">
+        <button class="btn-outline" style="width:80px" onclick="goHome()">Back</button>
+        <button class="btn-green" onclick="calculateFolderReport()">Generate Master Report</button>
+        <button class="btn-outline" onclick="window.print()">Print Report</button>
+    </div>
+    <h2 id="folderTitle">Folder View</h2>
+    <div id="folderContent"></div>
+    <div id="folderReportArea"></div>
+  </div>
+</div>
 
-<div id="blocks"></div>
+<script>
+const YARN_LIB = {
+    "6s": { r: 28, h: 2800 }, "10s": { r: 36, h: 2900 }, "17s": { r: 48, h: 2950 },
+    "26s": { r: 52, h: 3000 }, "32s": { r: 56, h: 3000 }, "40s": { r: 64, h: 3000 },
+    "60s": { r: 72, h: 3100 }, "84s": { r: 84, h: 3200 }, "100s": { r: 96, h: 3300 },
+    "2/17s": { r: 32, h: 2950 }, "2/26s": { r: 42, h: 3000 }, "2/40s": { r: 48, h: 3000 },
+    "2/60s": { r: 56, h: 3100 }, "2/80s": { r: 64, h: 3200 }, "33K": { r: 48, h: 3000 },
+    "56K": { r: 56, h: 3100 }, "100K": { r: 72, h: 3300 }
+};
 
-<button onclick="addNewBlock()">Add New Block</button>
-<button onclick="calculate()">Calculate</button>
-<button onclick="printPDF()">Save / Print as PDF</button>
+let activeDesignIdx = null; 
+let activeFolderId = null;
 
-<h3>Weaver Instruction</h3>
-<div id="weaverTable"></div>
+function getDB() { return JSON.parse(localStorage.getItem('app2_locked_v1') || '{"designs":[], "folders":[], "colours":[]}'); }
+function saveDB(db) { localStorage.setItem('app2_locked_v1', JSON.stringify(db)); }
 
-<h3>Dyeing Instruction</h3>
-<div id="dyeTable"></div>
+function parseColorEntry(fullName, designCount) {
+    let count = designCount;
+    let color = fullName;
+    for (let key in YARN_LIB) {
+        if (fullName.toLowerCase().startsWith(key.toLowerCase())) {
+            count = key;
+            color = fullName.substring(key.length).trim();
+            break;
+        }
+    }
+    return { count, color };
+}
 
-<script src="script.js"></script>
+function goHome() {
+    document.getElementById('homePage').classList.remove('hidden');
+    document.getElementById('editorPage').classList.add('hidden');
+    document.getElementById('folderPage').classList.add('hidden');
+    activeDesignIdx = null; loadHome();
+}
 
+function createNewDesign() {
+    activeDesignIdx = null;
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('editorPage').classList.remove('hidden');
+    const db = getDB();
+    let startLen = "";
+    if(activeFolderId) {
+        const sibling = [...db.designs].reverse().find(d => d.folderId == activeFolderId);
+        if(sibling) startLen = sibling.config.fabricLength;
+    }
+    resetEditor(startLen);
+}
+
+function resetEditor(len) {
+    document.getElementById('blocks').innerHTML = '';
+    document.getElementById('weaverTable').innerHTML = '';
+    document.getElementById('dyeTable').innerHTML = '';
+    document.getElementById('fabricLength').value = len || "";
+    document.getElementById('thanValue').value = 1;
+    document.getElementById('yarnCount').value = "";
+    updateFolderDropdown();
+    if(activeFolderId) document.getElementById('designFolderSelect').value = activeFolderId;
+    addBlock('design', 'Main Design', 3);
+}
+
+function onYarnChange() {
+    const v = document.getElementById('yarnCount').value;
+    if(YARN_LIB[v]) {
+        document.getElementById('reedValue').value = YARN_LIB[v].r;
+        document.getElementById('hankLength').value = YARN_LIB[v].h;
+        refreshAllRowThreads();
+    }
+}
+
+function updateRowThreads(input) {
+    const row = input.closest('.row');
+    const reed = parseFloat(document.getElementById('reedValue').value) || 1;
+    const unit = document.getElementById('globalUnit').value;
+    const wInp = row.querySelector('.width'), tInp = row.querySelector('.threads');
+    if(input.classList.contains('width')) {
+        const inch = unit === 'cm' ? (parseFloat(wInp.value)||0)/2.54 : (parseFloat(wInp.value)||0);
+        tInp.value = Math.round(inch * reed);
+    } else {
+        const inch = (parseFloat(tInp.value)||0) / reed;
+        wInp.value = unit === 'cm' ? (inch * 2.54).toFixed(2) : inch.toFixed(2);
+    }
+}
+
+function refreshAllRowThreads() { document.querySelectorAll('.width').forEach(updateRowThreads); }
+
+function createRow(c='', w='', t='') {
+    const r = document.createElement('div');
+    r.className = 'row';
+    r.innerHTML = `<select class="color-sel"></select>
+        <input class="width" type="number" placeholder="W" oninput="updateRowThreads(this)" value="${w}">
+        <input class="threads" type="number" placeholder="T" oninput="updateRowThreads(this)" value="${t}">
+        <button class="btn-outline no-print-force" onclick="addRowBelow(this)">+</button>
+        <button class="btn-red no-print-force" onclick="this.parentElement.remove()">×</button>`;
+    fillColDropdown(r.querySelector('.color-sel'), c);
+    return r;
+}
+function addRowBelow(btn) { btn.closest('.row').after(createRow()); }
+
+function addBlock(type, title, numRows, rowsData = [], toTop = false) {
+    const b = document.createElement('div');
+    b.className = 'block';
+    b.dataset.type = type;
+    b.innerHTML = `<div class="block-title">${title} <button class="btn-red no-print-force" style="width:auto; padding:2px 8px;" onclick="this.parentElement.parentElement.remove()">×</button></div><div class="row-container"></div>`;
+    const container = b.querySelector('.row-container');
+    if(rowsData.length > 0) {
+        rowsData.forEach(rd => container.appendChild(createRow(rd.c, rd.w, rd.t)));
+    } else {
+        for(let i=0; i<numRows; i++) container.appendChild(createRow());
+    }
+    const target = document.getElementById('blocks');
+    if(toTop) target.prepend(b); else target.appendChild(b);
+}
+
+function calculate() {
+    const repeat = parseFloat(document.getElementById('designRepeat').value) || 1;
+    const fl = parseFloat(document.getElementById('fabricLength').value) || 0;
+    const wast = parseFloat(document.getElementById('wastagePercent').value) || 0;
+    const than = parseFloat(document.getElementById('thanValue').value) || 1;
+    const dCount = document.getElementById('yarnCount').value;
+
+    let dye = {}, dSum = 0, bSum = 0, seq = 1;
+    let wHtml = `<div class="card"><h3>Weaver Instruction</h3><table><tr><th>Seq</th><th>Colour</th><th>Threads</th></tr>`;
+
+    document.querySelectorAll('.block').forEach(b => {
+        const type = b.dataset.type;
+        wHtml += `<tr style="background:#f8f9f9"><td colspan="3"><b>${type.toUpperCase()}</b></td></tr>`;
+        b.querySelectorAll('.row').forEach(r => {
+            const c = r.querySelector('.color-sel').value;
+            const t = parseFloat(r.querySelector('.threads').value) || 0;
+            if(!c || t <= 0) return;
+            wHtml += `<tr><td>${seq++}</td><td>${c}</td><td>${t}</td></tr>`;
+            
+            const p = parseColorEntry(c, dCount);
+            const yarn = YARN_LIB[p.count] || { h: 3000 };
+            const th = (type === 'design' ? (t * repeat) : t);
+            const hanks = (th * fl * (1 + wast/100) / yarn.h) * than;
+
+            if(!dye[c]) dye[c] = { threads: 0, hanks: 0 };
+            dye[c].threads += th;
+            dye[c].hanks += hanks;
+            if(type === 'design') dSum += t; else bSum += t;
+        });
+    });
+
+    const total = (dSum * repeat) + bSum;
+    const reed = document.getElementById('reedValue').value;
+    wHtml += `<tr class="total-row"><td>Reed: ${reed}</td><td>Drum: ${(total/reed).toFixed(2)}</td><td>(${dSum} × ${repeat}) + ${bSum} = ${total}</td></tr></table></div>`;
+    document.getElementById('weaverTable').innerHTML = wHtml;
+
+    let dHtml = `<div class="card"><h3>Dyeing Instruction</h3><table><tr><th>Colour</th><th>Hanks</th></tr>`;
+    for(let c in dye) {
+        dHtml += `<tr><td style="text-align:left">${c}</td><td>${dye[c].hanks.toFixed(2)}</td></tr>`;
+    }
+    dHtml += `</table></div>`;
+    document.getElementById('dyeTable').innerHTML = dHtml;
+}
+
+function saveDesign(isUpdate) {
+    const db = getDB();
+    const config = {
+        yarnCount: document.getElementById('yarnCount').value,
+        fabricLength: document.getElementById('fabricLength').value,
+        reedValue: document.getElementById('reedValue').value,
+        wastagePercent: document.getElementById('wastagePercent').value,
+        hankLength: document.getElementById('hankLength').value,
+        designRepeat: document.getElementById('designRepeat').value,
+        globalUnit: document.getElementById('globalUnit').value,
+        thanValue: document.getElementById('thanValue').value
+    };
+    const blocks = [];
+    document.querySelectorAll('.block').forEach(b => {
+        const rows = [];
+        b.querySelectorAll('.row').forEach(r => {
+            rows.push({ c: r.querySelector('.color-sel').value, w: r.querySelector('.width').value, t: r.querySelector('.threads').value });
+        });
+        blocks.push({ type: b.dataset.type, title: b.querySelector('.block-title').innerText.replace('×','').trim(), rows });
+    });
+
+    if(isUpdate && activeDesignIdx !== null) {
+        db.designs[activeDesignIdx].config = config;
+        db.designs[activeDesignIdx].blocks = blocks;
+        db.designs[activeDesignIdx].folderId = document.getElementById('designFolderSelect').value;
+    } else {
+        const name = prompt("Design Name:");
+        if(!name) return;
+        db.designs.push({ name, folderId: document.getElementById('designFolderSelect').value, config, blocks });
+    }
+    saveDB(db); goHome();
+}
+
+function loadHome() {
+    const db = getDB();
+    const fList = document.getElementById('folderList'), dList = document.getElementById('designList');
+    fList.innerHTML = ''; dList.innerHTML = '';
+    db.folders.forEach(f => {
+        const div = document.createElement('div'); div.className = 'card';
+        div.innerHTML = `<strong>📁 ${f.name}</strong><div style="display:flex; gap:5px; margin-top:10px;">
+            <button onclick="viewFolder(${f.id})">Open</button>
+            <button class="btn-red" style="width:60px" onclick="deleteFolder(${f.id})">×</button></div>`;
+        fList.appendChild(div);
+    });
+    db.designs.forEach((d, i) => {
+        if(!d.folderId) {
+            const div = document.createElement('div'); div.className = 'card';
+            div.innerHTML = `<strong>${d.name}</strong> (${d.config.yarnCount})<div style="display:flex; gap:5px; margin-top:10px;">
+                <button onclick="openDesign(${i})">Edit</button>
+                <button class="btn-red" style="width:60px" onclick="deleteDesign(${i})">×</button></div>`;
+            dList.appendChild(div);
+        }
+    });
+}
+
+function viewFolder(id) {
+    activeFolderId = id; const db = getDB(); const f = db.folders.find(x => x.id == id);
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('folderPage').classList.remove('hidden');
+    document.getElementById('folderTitle').innerText = f.name;
+    document.getElementById('folderReportArea').innerHTML = '';
+    const container = document.getElementById('folderContent');
+    container.innerHTML = `<button class="btn-green" onclick="createNewDesign()">+ New Design</button>`;
+    db.designs.forEach((d, i) => {
+        if(d.folderId == id) {
+            const div = document.createElement('div'); div.className = 'card';
+            div.innerHTML = `<strong>${d.name}</strong><button class="btn-outline" style="margin-top:5px" onclick="openDesign(${i})">Edit</button>`;
+            container.appendChild(div);
+        }
+    });
+}
+
+function calculateFolderReport() {
+    const db = getDB();
+    const designs = db.designs.filter(d => d.folderId == activeFolderId);
+    if(!designs.length) return;
+
+    let html = `<h3>Individual Breakdowns</h3><div class="compact-grid">`;
+    let matrix = {}; 
+    let allCounts = new Set();
+
+    designs.forEach(d => {
+        const dCount = d.config.yarnCount;
+        html += `<div class="card"><b>${d.name}</b><table class="compact-table"><tr><th>Colour</th><th>Thr</th><th>Qty</th></tr>`;
+        const rep = parseFloat(d.config.designRepeat)||1, fl = parseFloat(d.config.fabricLength)||0, wast = parseFloat(d.config.wastagePercent)||0, than = parseFloat(d.config.thanValue)||1;
+
+        d.blocks.forEach(b => {
+            b.rows.forEach(r => {
+                const p = parseColorEntry(r.c, dCount);
+                allCounts.add(p.count);
+                const yarn = YARN_LIB[p.count] || { h: 3000 };
+                const threads = (b.type === 'design' ? (r.t * rep) : parseFloat(r.t));
+                const hanks = (threads * fl * (1 + wast/100) / yarn.h) * than;
+                html += `<tr><td style="text-align:left">${r.c}</td><td>${threads}</td><td>${hanks.toFixed(2)}</td></tr>`;
+                if(!matrix[p.color]) matrix[p.color] = {};
+                matrix[p.color][p.count] = (matrix[p.color][p.count] || 0) + hanks;
+            });
+        });
+        html += `</table></div>`;
+    });
+
+    html += `</div><h3>Master Matrix (Quantities)</h3><div class="card" style="overflow-x:auto"><table class="matrix-table"><tr><th>Colour</th>`;
+    const sortedCounts = Array.from(allCounts).sort();
+    sortedCounts.forEach(c => html += `<th>${c}</th>`);
+    html += `<th>Total</th></tr>`;
+    for(let col in matrix) {
+        html += `<tr><td>${col}</td>`;
+        let rowTotal = 0;
+        sortedCounts.forEach(c => {
+            const val = matrix[col][c] || 0;
+            html += `<td>${val > 0 ? val.toFixed(2) : '-'}</td>`;
+            rowTotal += val;
+        });
+        html += `<td class="total-row">${rowTotal.toFixed(2)}</td></tr>`;
+    }
+    html += `</table></div>`;
+    document.getElementById('folderReportArea').innerHTML = html;
+}
+
+function openDesign(idx) {
+    const db = getDB(); const d = db.designs[idx];
+    activeDesignIdx = idx; activeFolderId = d.folderId;
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('folderPage').classList.add('hidden');
+    document.getElementById('editorPage').classList.remove('hidden');
+    updateFolderDropdown();
+    document.getElementById('yarnCount').value = d.config.yarnCount;
+    document.getElementById('fabricLength').value = d.config.fabricLength;
+    document.getElementById('reedValue').value = d.config.reedValue;
+    document.getElementById('thanValue').value = d.config.thanValue || 1;
+    document.getElementById('wastagePercent').value = d.config.wastagePercent;
+    document.getElementById('hankLength').value = d.config.hankLength;
+    document.getElementById('designRepeat').value = d.config.designRepeat;
+    document.getElementById('designFolderSelect').value = d.folderId;
+    document.getElementById('blocks').innerHTML = '';
+    d.blocks.forEach(b => addBlock(b.type, b.title, 0, b.rows));
+    calculate();
+}
+
+function toggleColourMaster() { 
+    const sec = document.getElementById('colourMasterSection');
+    sec.classList.toggle('hidden');
+    document.getElementById('toggleColBtn').innerText = sec.classList.contains('hidden') ? "Show Colour Master List" : "Hide Colour Master List";
+}
+function addColourRow(v='') {
+    const d = document.createElement('div'); d.className = 'row'; d.style.gridTemplateColumns = "1fr 45px";
+    d.innerHTML = `<input value="${v}"><button class="btn-red" onclick="this.parentElement.remove()">×</button>`;
+    document.getElementById('colourRows').appendChild(d);
+}
+function saveColours() {
+    const db = getDB(); const newCols = [];
+    document.querySelectorAll('#colourRows input').forEach(i => { if(i.value) newCols.push(i.value); });
+    db.colours = newCols; saveDB(db);
+    document.querySelectorAll('.color-sel').forEach(sel => { const v = sel.value; fillColDropdown(sel, v); });
+    toggleColourMaster();
+}
+function fillColDropdown(sel, val) {
+    const db = getDB(); sel.innerHTML = `<option value="">Color</option>`;
+    db.colours.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+    sel.value = val;
+}
+function createNewFolder() {
+    const n = prompt("Folder Name:"); if(!n) return;
+    const db = getDB(); db.folders.push({ id: Date.now(), name: n });
+    saveDB(db); loadHome();
+}
+function updateFolderDropdown() {
+    const sel = document.getElementById('designFolderSelect');
+    sel.innerHTML = `<option value="">Uncategorized</option>`;
+    getDB().folders.forEach(f => sel.innerHTML += `<option value="${f.id}">${f.name}</option>`);
+}
+function deleteDesign(i) { if(confirm("Delete design?")) { const db = getDB(); db.designs.splice(i,1); saveDB(db); loadHome(); } }
+function deleteFolder(id) { 
+    if(confirm("Delete folder?")) {
+        const db = getDB(); db.folders = db.folders.filter(f => f.id != id);
+        db.designs.forEach(d => { if(d.folderId == id) d.folderId = ""; });
+        saveDB(db); loadHome();
+    }
+}
+
+(function() {
+    const db = getDB(); db.colours.forEach(c => addColourRow(c)); loadHome();
+})();
+</script>
 </body>
 </html>
